@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from sqlalchemy import create_engine
 from server import server
 import domain.loans.api
-import domain.models.api
 from server import engine
 
 

@@ -56,3 +56,9 @@ mlflow ui --port 5000
 - **GET /loans/add :** Afficher le formulaire permettant d'ajouter un emprunt au jeu de données
 - **POST /loans/add :** Ajouter un emprunt au jeu de données
 - **DELETE /loans/:id :** Supprimer un emprunt du jeu de données
+- **GET /loans/predict :** Afficher le formulaire permettant de prédire le montant d'un emprunt
+- **POST /loans/predict :** Prédire le montant d'un emprunt
+
+## Entraînement du modèle
+
+![loss and val loss](./media/model_training.png)

@@ -12,15 +12,13 @@ mlflow.set_experiment("Entraînement du " + datetime.now().strftime("%d/%m/%Y, %
 
 df = pd.read_sql(session.query(Loan).statement,session.bind)
 df.reset_index(drop=True, inplace=True)
-df.to_csv('data/used_dataset.csv')
-print(df)
 
 new_dataset = mlflow.data.from_pandas(
     df, name="Dataset", targets="montant_pret"
 )
 
 # preprocesser les data
-new_X, new_y = preprocessing(df)
+new_X, new_y, preprocessor = preprocessing(df)
 
 # split data in train and test dataset
 new_X_train, new_X_test, new_y_train, new_y_test = split(new_X, new_y)
@@ -49,6 +47,7 @@ with mlflow.start_run(run_name = "Entraînement du nouveau modèle"):
     mlflow.sklearn.log_model(new_model, "Nouveau modèle")
 
     # sauvegarder le nouveau modèle
-    joblib.dump(new_model, join('models','model_2025_11.pkl'))
+    joblib.dump(preprocessor, join('models','preprocessor.pkl'))
+    joblib.dump(new_model, join('models','model.pkl'))
 
 

@@ -6,37 +6,22 @@ label_encoder = preprocessing.LabelEncoder()
 
 raw_dataset = pd.read_csv("data/dataset.csv")
 
-# Encodage
-
-def etudes_to_number(x: str):
-    if x == "aucun":
-        return 0
-    elif x == "bac":
-        return 1
-    elif x == "bac+2":
-        return 2
-    elif x == "master":
-        return 3
-    elif x == "doctorat":
-        return 4
-    else:
-        return None
-
-
 encoded_dataset = raw_dataset.copy()
 
-encoded_dataset["prenom"] = label_encoder.fit_transform(encoded_dataset['prenom'])
-encoded_dataset["nom"] = label_encoder.fit_transform(encoded_dataset['nom'])
-
-encoded_dataset["niveau_etude"] = encoded_dataset.apply(lambda x: etudes_to_number(x["niveau_etude"]), axis=1)
 encoded_dataset["date_creation_compte"] =  pd.to_datetime(encoded_dataset['date_creation_compte'])
+encoded_dataset["date_creation_compte"] =  encoded_dataset["date_creation_compte"].apply(lambda x: x.timestamp())
 
 ## Autres catégories
-encoded_dataset = pd.get_dummies(encoded_dataset)
+# encoded_dataset = pd.get_dummies(encoded_dataset)
 
 # Nettoyage
 cleaned_dataset = encoded_dataset.drop_duplicates(inplace=False)
-cleaned_dataset = cleaned_dataset.fillna(value=cleaned_dataset.median(), inplace=False) 
+
+num_columns=["age", "historique_credits", "revenu_estime_mois", "risque_personnel", "score_credit", "loyer_mensuel", "date_creation_compte", "montant_pret"]
+
+cleaned_dataset[num_columns] = cleaned_dataset[num_columns].fillna(value=cleaned_dataset[num_columns].median(), inplace=False) 
+
+
 cleaned_dataset = cleaned_dataset.drop(cleaned_dataset.loc[cleaned_dataset["loyer_mensuel"] < 0.0].index, inplace=False)
 
 threshold = 1.5
@@ -64,16 +49,18 @@ cleaned_dataset = cleaned_dataset.drop(pret_outliers.index)
 final_dataset = cleaned_dataset.copy()
 
 final_dataset["imc"] = final_dataset.apply(lambda x: x["poids"] / ((x["taille"] / 100) ** 2), axis=1)
+print(final_dataset)
 
-final_dataset = final_dataset.drop(columns=["nom", "prenom", "sexe_H", "sexe_F", "nationalité_francaise_oui", "nationalité_francaise_non", "taille", "poids"
-])
-final_dataset = final_dataset[final_dataset.columns.drop(list(final_dataset.filter(regex='region_')))]
+final_dataset = final_dataset.drop(columns=["nom", "prenom", "sexe", "nationalité_francaise", "taille", "poids", "region"])
 
 
 # Création de la BDD
 
 engine = create_engine("sqlite:///database.db")
 
+
 final_dataset.to_sql("loans", engine, if_exists="replace", index=True, index_label="id")
+
+final_dataset.to_csv('data/cleaned_dataset.csv')
 
 print("Le DataFrame a été inséré dans la table 'loans' de la base de données.")

@@ -26,27 +26,35 @@ def preprocessing(df):
         ("scaler", StandardScaler())
     ])
 
- # Prétraitement
-    X = df.drop(columns=["id", "montant_pret"])
-    X["date_creation_compte"] =  X["date_creation_compte"].apply(lambda x: x.timestamp())
+    cat_pipeline = Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
+    ])
 
-    print(X.columns.values.tolist())
+    numerical_cols = ["age", "imc", "historique_credits", "revenu_estime_mois", "risque_personnel", "score_credit", "loyer_mensuel", "date_creation_compte"]
+    categorical_cols = ["sport_licence", "niveau_etude", "smoker", "situation_familiale"]
+
+
+    # Prétraitement
+    X = df.drop(columns=["id", "montant_pret"])
+
     preprocessor = ColumnTransformer([
-        ("num", num_pipeline, X.columns.values.tolist()),
+        ("num", num_pipeline, numerical_cols),
+        ("cat", cat_pipeline, categorical_cols)
     ])
    
     X_processed = preprocessor.fit_transform(X)
 
     y = df["montant_pret"]
-    return X_processed, y
+    return X_processed, y, preprocessor
 
 def create_nn_model(input_dim):
     """
     Fonction pour créer et compiler un modèle de réseau de neurones simple.
     """
     model = Sequential()
-    model.add(Dense(128, activation='relu', input_dim=input_dim))
-    model.add(Dense(64, activation='relu'))
+    model.add(Dense(64, activation='relu', input_dim=input_dim))
+    model.add(Dense(32, activation='relu'))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mse')
     return model

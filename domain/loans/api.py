@@ -9,12 +9,12 @@ from typing import Annotated, Optional
 import datetime
 import joblib
 from os.path import join as join
-
+import pandas as pd
 
 templates = Jinja2Templates(directory="domain/loans/templates")
 
+preprocessor = joblib.load(join('models','preprocessor.pkl'))
 model = joblib.load(join('models','model.pkl'))
-preprocessor_loaded = joblib.load(join('models','preprocessor.pkl'))
 
 
 @server.get("/loans")
@@ -44,21 +44,26 @@ async def add_loan_form(request: Request):
 
 @server.post("/loans/add")
 async def add_loan_action(request: Request, input: Annotated[AddLoanForm, Form()]):
+    if input.smoker:
+        smoker = "oui"
+    else:
+        smoker = "non"
+
+    if input.sport_licence:
+        sport_licence = "oui"
+    else:
+        sport_licence = "non"
+
     new_loan = Loan(
         age = input.age,
         niveau_etude = input.niveau_etude,
-        situation_familiale_célibataire = input.situation_familiale == "célibataire",
-        situation_familiale_marié = input.situation_familiale == "marié",
-        situation_familiale_divorcé = input.situation_familiale == "divorcé",
-        situation_familiale_veuf = input.situation_familiale == "veuf",
+        situation_familiale = input.situation_familiale,
         revenu_estime_mois = input.revenu_estime_mois,
         loyer_mensuel = input.loyer_mensuel,
         imc = input.imc,
-        smoker_oui = input.smoker,
-        smoker_non = not input.smoker,
-        sport_licence_oui = input.sport_licence,
-        sport_licence_non = not input.sport_licence,
-        date_creation_compte = datetime.datetime.fromisoformat( input.date_creation_compte),
+        smoker = smoker,
+        sport_licence = sport_licence,
+        date_creation_compte = datetime.datetime.fromisoformat( input.date_creation_compte).timestamp(),
         historique_credits = input.historique_credits,
         risque_personnel = input.risque_personnel,
         score_credit = input.score_credit,
@@ -77,9 +82,14 @@ async def remove_a_loan(request: Request, loan_id: int):
     loans = session.execute(select(Loan)).scalars().all()
     return templates.TemplateResponse("list_loans.html", request=request, context={"request": request, "loans": loans})
 
+
+@server.get("/loans/predict")
+async def predict_loan_form(request: Request):
+    return templates.TemplateResponse("predict_loan.html", request=request, context={"request": request})
+
 class PredictLoanForm(BaseModel):
     age: int
-    niveau_etude: int
+    niveau_etude: str
     situation_familiale: str
     revenu_estime_mois: float
     loyer_mensuel: float
@@ -90,35 +100,49 @@ class PredictLoanForm(BaseModel):
     historique_credits: float
     risque_personnel: float
     score_credit: float
-    montant_pret: float
-
-@server.get("/loans/predict")
-async def predict_loan_form(request: Request):
-    return templates.TemplateResponse("add_loan.html", request=request, context={"request": request})
 
 @server.post("/loans/predict")
-async def predict_loan_action(request: Request, input: Annotated[AddLoanForm, Form()]):
+async def predict_loan_action(request: Request, input: Annotated[PredictLoanForm, Form()]):
+    if input.smoker:
+        smoker = "oui"
+    else:
+        smoker = "non"
+
+    if input.sport_licence:
+        sport_licence = "oui"
+    else:
+        sport_licence = "non"
+
     loan = Loan(
         age = input.age,
         niveau_etude = input.niveau_etude,
-        situation_familiale_célibataire = input.situation_familiale == "célibataire",
-        situation_familiale_marié = input.situation_familiale == "marié",
-        situation_familiale_divorcé = input.situation_familiale == "divorcé",
-        situation_familiale_veuf = input.situation_familiale == "veuf",
+        situation_familiale = input.situation_familiale,
         revenu_estime_mois = input.revenu_estime_mois,
         loyer_mensuel = input.loyer_mensuel,
         imc = input.imc,
-        smoker_oui = input.smoker,
-        smoker_non = not input.smoker,
-        sport_licence_oui = input.sport_licence,
-        sport_licence_non = not input.sport_licence,
-        date_creation_compte = datetime.datetime.fromisoformat( input.date_creation_compte),
+        smoker = smoker,
+        sport_licence = sport_licence,
+        date_creation_compte = datetime.datetime.fromisoformat(input.date_creation_compte).timestamp(),
         historique_credits = input.historique_credits,
         risque_personnel = input.risque_personnel,
         score_credit = input.score_credit,
-        montant_pret = input.montant_pret,
     )
-    prediction_pipeline = model.predict([
-        [loan.age, loan.niveau_etude, loan.situation_familiale_célibataire, situation_familiale_marié, ]
-    ])
-    return f"<p>Montant du prêt : {prediction_pipeline[0]}</p>" 
+    df = pd.DataFrame({
+        "age": loan.age,
+        "sport_licence": loan.sport_licence,
+        "niveau_etude": loan.niveau_etude,
+        "smoker": loan.smoker,
+        "revenu_estime_mois": loan.revenu_estime_mois,
+        "situation_familiale": loan.situation_familiale,
+        "historique_credits": loan.historique_credits,
+        "risque_personnel": loan.risque_personnel,
+        "date_creation_compte": loan.date_creation_compte,
+        "score_credit": loan.score_credit,
+        "loyer_mensuel": loan.loyer_mensuel,
+        "imc": loan.imc,
+    }, index=[0])
+    # print(preprocessor)
+    data_transformed = preprocessor.transform(df)
+    print(data_transformed)
+    prediction_pipeline = model.predict(data_transformed)
+    return f"""<p>Montant du prêt : {prediction_pipeline[0]} €</p>""" 
