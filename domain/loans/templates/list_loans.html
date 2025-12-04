@@ -1,0 +1,48 @@
+<div id="table">
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+
+  <h2>Emprunts</h2>
+
+  <a href="/models/train">Entraîner un modèle</a>
+  <br />
+  <a href="/loans/add">Ajouter un emprunt</a>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Age</th>
+        <th>IMC</th>
+        <th>Niveau d'étude</th>
+        <th>Revenu estimé mensuel</th>
+        <th>Risque personnel</th>
+        <th>Date de création du compte</th>
+        <th>Score de crédit</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for loan in loans %}
+      <tr>
+        <td>{{ loan.id }}</td>
+        <td>{{ loan.age }}</td>
+        <td>{{ loan.imc }}</td>
+        <td>{{ loan.niveau_etude }}</td>
+        <td>{{ loan.revenu_estime_mois }}</td>
+        <td>{{ loan.risque_personnel }}</td>
+        <td>{{ loan.date_creation_compte }}</td>
+        <td>{{ loan.score_credit }}</td>
+        <td>
+          <button
+            hx-delete="/loans/{{loan.id}}"
+            hx-trigger="click"
+            hx-target="#table"
+          >
+            Supprimer
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

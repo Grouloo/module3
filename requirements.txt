@@ -1,0 +1,13 @@
+alembic
+fastapi
+requests
+joblib
+matplotlib
+mlflow
+pandas
+pydentic
+python-multipart
+sqlalchemy
+scikit-learn
+tensorflow
+tensorflow-io-gcs-filesystem

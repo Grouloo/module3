@@ -1,0 +1,58 @@
+# Exposer une base de données relationnelle via une API REST et entrainer un modèle d'IA
+
+## Démarrer
+
+### Mise en place
+
+```bash
+python -m venv .venv
+
+source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+## Initialiser la BDD
+
+```bash
+python initialize_db.py
+```
+
+## Lancer le serveur HTTP
+
+```bash
+uvicorn main:server --host 0.0.0.0 --port 80
+```
+
+## Entraîner le modèle
+
+```bash
+python train.py
+```
+
+## Lancer l'interface MLFlow
+
+```bash
+mlflow ui --port 5000
+```
+
+## Structure du projet
+
+- **initialize_db.py :** Permet d'initialiser la base de données en la remplissant avec les éléments du dataset nettoyé
+- **server.py :** Gère la connexion à la base de données
+- **main.py :** Programme principal, gère le serveur HTTP
+- **/data :** Contient les corpus de données au format CSV
+- **/models :** Contient les modèles et préprocesseurs générés
+- **/domain :** Contient les processus métiers de l'API regroupés en "tranches verticales"
+  - **/nom_entitee**
+    - **nom_entite.py :** Classe représentant l'entité telle qu'elle existe dans la BDD
+    - **api.py :** Ensemble des routes d'API permettant d'agir sur l'entité
+    - **/templates :** Ensemble des fichiers HTML servant aux rendus des routes de l'API
+
+## Routes de l'API
+
+- **GET /documentation :** Documentation ReDoc
+- **GET /loans :** Lister les emprunts du jeu de données
+- **GET /loans/add :** Afficher le formulaire permettant d'ajouter un emprunt au jeu de données
+- **POST /loans/add :** Ajouter un emprunt au jeu de données
+- **DELETE /loans/:id :** Supprimer un emprunt du jeu de données
