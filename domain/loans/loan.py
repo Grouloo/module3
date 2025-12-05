@@ -16,4 +16,6 @@ class Loan(Base):
     sport_licence = Column(String)
     smoker = Column(String)
     situation_familiale = Column(String)
+    nb_enfants = Column(Integer)
+    quotient_caf = Column(Float)
     montant_pret = Column(Float)

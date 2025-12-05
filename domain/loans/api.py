@@ -37,7 +37,9 @@ class AddLoanForm(BaseModel):
     risque_personnel: float
     score_credit: float
     montant_pret: float
-
+    nb_enfants: int
+    quotient_caf: float
+    
 @server.get("/loans/add")
 async def add_loan_form(request: Request):
     return templates.TemplateResponse("add_loan.html", request=request, context={"request": request})
@@ -68,6 +70,8 @@ async def add_loan_action(request: Request, input: Annotated[AddLoanForm, Form()
         risque_personnel = input.risque_personnel,
         score_credit = input.score_credit,
         montant_pret = input.montant_pret,
+         nb_enfants = input.nb_enfants,
+        quotient_caf = input.quotient_caf
     )
     session.add(new_loan)
     session.commit()
@@ -100,6 +104,8 @@ class PredictLoanForm(BaseModel):
     historique_credits: float
     risque_personnel: float
     score_credit: float
+    nb_enfants: int
+    quotient_caf: float
 
 @server.post("/loans/predict")
 async def predict_loan_action(request: Request, input: Annotated[PredictLoanForm, Form()]):
@@ -126,6 +132,8 @@ async def predict_loan_action(request: Request, input: Annotated[PredictLoanForm
         historique_credits = input.historique_credits,
         risque_personnel = input.risque_personnel,
         score_credit = input.score_credit,
+        nb_enfants = input.nb_enfants,
+        quotient_caf = input.quotient_caf
     )
     df = pd.DataFrame({
         "age": loan.age,
@@ -140,6 +148,8 @@ async def predict_loan_action(request: Request, input: Annotated[PredictLoanForm
         "score_credit": loan.score_credit,
         "loyer_mensuel": loan.loyer_mensuel,
         "imc": loan.imc,
+        "nb_enfants": loan.nb_enfants,
+        "quotient_caf": loan.quotient_caf
     }, index=[0])
     # print(preprocessor)
     data_transformed = preprocessor.transform(df)

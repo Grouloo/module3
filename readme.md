@@ -12,10 +12,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Initialiser la BDD
+## Initialiser la BDD et effectuer les migrations
 
 ```bash
-python initialize_db.py
+alembic upgrade head
 ```
 
 ## Lancer le serveur HTTP
@@ -62,3 +62,9 @@ mlflow ui --port 5000
 ## Entraînement du modèle
 
 ![loss and val loss](./media/model_training.png)
+
+## Migration
+
+Le nouveau dataset, en plus de contenir de nouvelles lignes à intégrer, contient de nouvelles colonnes : `orientation_sexuelle`, `nb_enfants` et `quotient_caf`.
+
+Sur ces 3 colonnes, nous ne garderons pas `orientation_sexuelle` : nous n'avons pas besoin de cette information, et elle pourrait causer des comportements discriminatoires chez notre modèle.

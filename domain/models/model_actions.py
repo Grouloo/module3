@@ -31,7 +31,7 @@ def preprocessing(df):
         ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
     ])
 
-    numerical_cols = ["age", "imc", "historique_credits", "revenu_estime_mois", "risque_personnel", "score_credit", "loyer_mensuel", "date_creation_compte"]
+    numerical_cols = ["age", "imc", "historique_credits", "revenu_estime_mois", "risque_personnel", "score_credit", "loyer_mensuel", "date_creation_compte", "nb_enfants", "quotient_caf"]
     categorical_cols = ["sport_licence", "niveau_etude", "smoker", "situation_familiale"]
 
 
