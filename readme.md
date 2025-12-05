@@ -40,9 +40,8 @@ mlflow ui --port 5000
 
 ## Structure du projet
 
-- **initialize_db.py :** Permet d'initialiser la base de données en la remplissant avec les éléments du dataset nettoyé
-- **server.py :** Gère la connexion à la base de données
 - **main.py :** Programme principal, gère le serveur HTTP
+- **server.py :** Gère la connexion à la base de données
 - **/data :** Contient les corpus de données au format CSV
 - **/models :** Contient les modèles et préprocesseurs générés
 - **/alembic/versions :** Contient les scripts de migration
