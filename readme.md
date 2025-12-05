@@ -18,16 +18,18 @@ pip install -r requirements.txt
 alembic upgrade head
 ```
 
-## Lancer le serveur HTTP
-
-```bash
-uvicorn main:server --host 0.0.0.0 --port 80
-```
-
 ## Entraîner le modèle
 
 ```bash
 python train.py
+```
+
+Tous les entraînements sont enregistrés dans MLFlow.
+
+## Lancer le serveur HTTP
+
+```bash
+uvicorn main:server --host 0.0.0.0 --port 80
 ```
 
 ## Lancer l'interface MLFlow
