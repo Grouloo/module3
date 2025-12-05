@@ -43,6 +43,7 @@ mlflow ui --port 5000
 - **main.py :** Programme principal, gère le serveur HTTP
 - **/data :** Contient les corpus de données au format CSV
 - **/models :** Contient les modèles et préprocesseurs générés
+- **/alembic/versions :** Contient les scripts de migration
 - **/domain :** Contient les processus métiers de l'API regroupés en "tranches verticales"
   - **/nom_entitee**
     - **nom_entite.py :** Classe représentant l'entité telle qu'elle existe dans la BDD
