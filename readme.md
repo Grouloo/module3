@@ -68,3 +68,7 @@ mlflow ui --port 5000
 Le nouveau dataset, en plus de contenir de nouvelles lignes à intégrer, contient de nouvelles colonnes : `orientation_sexuelle`, `nb_enfants` et `quotient_caf`.
 
 Sur ces 3 colonnes, nous ne garderons pas `orientation_sexuelle` : nous n'avons pas besoin de cette information, et elle pourrait causer des comportements discriminatoires chez notre modèle.
+
+Certaines lignes n'ont pas de valeur définie pour la colonne `situation_familiale`. Nous allons les retirer.
+
+Le script correspondant à cette migration peut être retrouvé fans le fichier `/alembic/versions/bd27d7e1c84d_new_dataset_inclusion.py`
