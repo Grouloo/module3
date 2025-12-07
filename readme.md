@@ -20,6 +20,11 @@ alembic upgrade head
 
 ## Entraîner le modèle
 
+La commande suivante lance deux entraînements :
+
+1. Un premier entraînement utilisant uniquement le premier _dataset_
+2. Un second entraînement sur un nouveau modèle ré-utilisant les poids du modèle précédent et intégrant les données du second _dataset_
+
 ```bash
 python train.py
 ```
@@ -61,9 +66,15 @@ mlflow ui --port 5000
 - **GET /loans/predict :** Afficher le formulaire permettant de prédire le montant d'un emprunt
 - **POST /loans/predict :** Prédire le montant d'un emprunt
 
-## Entraînement du modèle
+## Entraînement des modèles
 
-![loss and val loss](./media/model_training.png)
+### Premier modèle
+
+![loss and val loss](./media/first_model_training.png)
+
+### Modèle "héritier"
+
+![loss and val loss](./media/second_model_training.png)
 
 ## Migration
 

@@ -1,5 +1,5 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Input
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split
@@ -8,12 +8,13 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
 import pandas as pd
+from typing import List
 
 def split(X, y, test_size=0.2, random_state=42):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
     return X_train, X_test, y_train, y_test
 
-def preprocessing(df):
+def preprocessing(df, numerical_cols: List[str], categorical_cols: List[str]):
     """
     Fonction pour effectuer le prétraitement des données :
     - Imputation des valeurs manquantes.
@@ -31,10 +32,6 @@ def preprocessing(df):
         ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
     ])
 
-    numerical_cols = ["age", "imc", "historique_credits", "revenu_estime_mois", "risque_personnel", "score_credit", "loyer_mensuel", "date_creation_compte", "nb_enfants", "quotient_caf"]
-    categorical_cols = ["sport_licence", "niveau_etude", "smoker", "situation_familiale"]
-
-
     # Prétraitement
     X = df.drop(columns=["id", "montant_pret"])
 
@@ -48,16 +45,30 @@ def preprocessing(df):
     y = df["montant_pret"]
     return X_processed, y, preprocessor
 
-def create_nn_model(input_dim):
+def create_nn_model(nb_inputs: int):
     """
     Fonction pour créer et compiler un modèle de réseau de neurones simple.
     """
-    model = Sequential()
-    model.add(Dense(64, activation='relu', input_dim=input_dim))
-    model.add(Dense(32, activation='relu'))
-    model.add(Dense(1))
+    model = Sequential([
+        Input(shape=(nb_inputs,), name=f"inputs_{nb_inputs}"),
+        Dense(64, activation='relu', name="dense_1"),
+        Dense(32, activation='relu', name="dense_2"),
+        Dense(1, name="output")
+    ])
     model.compile(optimizer='adam', loss='mse')
     return model
+
+def transfer_weights(model1, model2):
+    for layer in model2.layers:
+        try:
+            old_layer = model1.get_layer(layer.name)
+            layer.set_weights(old_layer.get_weights())
+            print(f"✅ Poids transférés pour : {layer.name}")
+        except ValueError:
+            print(f"⛔ Incompatible ou nouvelle couche : {layer.name}")
+
+    model2.compile(optimizer='adam', loss='mse')
+    return model2
 
 def train_model(model, X, y, X_val=None, y_val=None, epochs=50, batch_size=32, verbose=0 ):
     hist = model.fit(X, y, 

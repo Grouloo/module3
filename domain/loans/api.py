@@ -13,8 +13,8 @@ import pandas as pd
 
 templates = Jinja2Templates(directory="domain/loans/templates")
 
-preprocessor = joblib.load(join('models','preprocessor.pkl'))
-model = joblib.load(join('models','model.pkl'))
+preprocessor = joblib.load(join('models','second_preprocessor.pkl'))
+model = joblib.load(join('models','second_model.pkl'))
 
 
 @server.get("/loans")
@@ -39,7 +39,7 @@ class AddLoanForm(BaseModel):
     montant_pret: float
     nb_enfants: int
     quotient_caf: float
-    
+
 @server.get("/loans/add")
 async def add_loan_form(request: Request):
     return templates.TemplateResponse("add_loan.html", request=request, context={"request": request})
